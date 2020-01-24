@@ -15,14 +15,26 @@ public class JpaMain {
         tx.begin();
 
         try{
-            //Member findMember = entityManager.find(Member.class, 1L);
-            List<Member> result = entityManager.createQuery("select m from Member as m", Member.class)
-                .getResultList();
+            Team team = new Team();
+            team.setName("TeamA");
+            entityManager.persist(team);
 
-            result.forEach(x -> {
-                System.out.println("id : " + x.getId());
-                System.out.println("name : " + x.getName());
+            Member member = new Member();
+            member.setUsername("member1");
+            member.setTeam(team);
+            entityManager.persist(member);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            Member findMember = entityManager.find(Member.class, member.getId());
+
+            List<Member> members = findMember.getTeam().getMembers();
+
+            members.stream().forEach(x -> {
+                System.out.println("x = " + x.getUsername());
             });
+
             tx.commit();
         }catch(Exception e) {
             tx.rollback();
